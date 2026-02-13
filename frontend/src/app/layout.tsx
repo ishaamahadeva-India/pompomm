@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { AuthRefreshProvider } from "@/components/AuthRefreshProvider";
 import { PwaRegister } from "@/components/PwaRegister";
 import PremiumSplash from "@/components/PremiumSplash";
@@ -51,7 +52,12 @@ export default function RootLayout({
         <PremiumSplash />
         <Header />
         <PwaRegister />
-        <AuthRefreshProvider>{children}</AuthRefreshProvider>
+        <AuthRefreshProvider>
+          <div className="flex min-h-screen flex-col">
+            <div className="flex-1">{children}</div>
+            <Footer />
+          </div>
+        </AuthRefreshProvider>
       </body>
     </html>
   );

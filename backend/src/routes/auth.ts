@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { authService } from "../services/auth.js";
+import { createAndStoreOtp, verifyOtp } from "../services/otpService.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getPool } from "../lib/db.js";
 import { sanitizeText } from "../lib/sanitize.js";
@@ -16,22 +17,43 @@ const COOKIE_OPTIONS = {
   path: "/",
 };
 
+const sendOtpBody = z.object({
+  mobile_number: z.string().min(10).max(20),
+});
+
 const loginBody = z.object({
   mobile_number: z.string().min(10).max(20),
-  otp: z.string().min(4).max(8).optional(),
+  otp: z.string().min(4).max(8),
   device_hash: z.string().max(64).optional(),
 });
 
 const PROFILE_SELECT = `id, mobile_number, role, total_score, total_earnings, created_at, display_name, unique_creator_id, subscription_status, creator_tier,
   age, gender, email, address, city, state, pincode, occupation, hobbies, brands_liked, bio`;
 
+authRouter.post("/send-otp", async (req, res, next) => {
+  try {
+    const body = sendOtpBody.safeParse(req.body);
+    if (!body.success) throw new AppError(400, "Invalid mobile number");
+    const { mobile_number } = body.data;
+    const result = await createAndStoreOtp(mobile_number);
+    if (!result.ok) {
+      throw new AppError(result.error?.includes("not configured") ? 503 : 400, result.error ?? "Failed to send OTP");
+    }
+    res.json({ ok: true, message: "OTP sent" });
+  } catch (e) {
+    next(e);
+  }
+});
+
 authRouter.post("/login", async (req, res, next) => {
   try {
     const body = loginBody.safeParse(req.body);
     if (!body.success) {
-      throw new AppError(400, "Invalid mobile number");
+      throw new AppError(400, "Invalid request. Mobile number and OTP required.");
     }
-    const { mobile_number, device_hash } = body.data;
+    const { mobile_number, otp, device_hash } = body.data;
+    const valid = await verifyOtp(mobile_number, otp);
+    if (!valid) throw new AppError(401, "Invalid or expired OTP");
     const result = await authService.login(mobile_number, device_hash ?? undefined);
     res.cookie("accessToken", result.accessToken, COOKIE_OPTIONS);
     res.cookie("refreshToken", result.refreshToken, { ...COOKIE_OPTIONS, maxAge: 30 * 24 * 60 * 60 });
