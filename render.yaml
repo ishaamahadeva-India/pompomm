@@ -1,0 +1,16 @@
+# Render Blueprint: deploy backend from this repo
+# In Render: New → Blueprint → connect repo → use this file
+services:
+  - type: web
+    name: pompomm-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: true
+      # Add these in Render Dashboard → Environment:
+      # DATABASE_URL, JWT_SECRET, FRONTEND_ORIGIN, REDIS_URL (optional)

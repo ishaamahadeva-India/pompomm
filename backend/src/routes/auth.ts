@@ -139,10 +139,10 @@ authRouter.patch("/me", authMiddleware, async (req, res, next) => {
         values.push(resolvedCreatorId ?? null);
       } else if (key === "display_name") {
         updates.push(`display_name = $${idx++}`);
-        values.push(emptyToNull(sanitizeText(v, 100)));
+        values.push(emptyToNull(sanitizeText(typeof v === "string" || v == null ? v : String(v), 100)));
       } else if (key === "email") {
         updates.push(`email = $${idx++}`);
-        values.push(emptyToNull(v));
+        values.push(emptyToNull(typeof v === "string" || v == null ? v : String(v)));
       } else if (typeof v === "string") {
         const maxLen = key === "bio" ? 1000 : key === "address" ? 1000 : 500;
         updates.push(`${key} = $${idx++}`);

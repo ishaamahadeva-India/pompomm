@@ -52,12 +52,37 @@ If you’re already in `backend/`, run: `cd ../frontend` first.
 2. **Redis** (recommended: Upstash): Needed for view rate limiting and leaderboard cache. See [Redis setup](#redis-recommended-upstash) below for the safer hosted option.
 3. **Try the app**: http://localhost:3000 → Log in (any 10-digit number) → open a campaign → record views/shares when logged in.
 
-### Production (pompomm.in)
+### Production
 
-**Domain:** [pompomm.in](https://pompomm.in)
+**Live on Vercel (no custom domain yet):** [https://pompomm-eight.vercel.app](https://pompomm-eight.vercel.app)
 
-- **Frontend:** Set `NEXT_PUBLIC_APP_URL=https://pompomm.in` and `NEXT_PUBLIC_API_URL` to your API URL (e.g. `https://api.pompomm.in`) in `frontend/.env.local` (or your host’s env).
-- **Backend:** Set `FRONTEND_ORIGIN=https://pompomm.in,https://www.pompomm.in` so CORS allows the production frontend. `pompomm.in` and `www.pompomm.in` are already in the default allowed origins.
+**Custom domain (when you add it):** [pompomm.in](https://pompomm.in)
+
+- **Frontend (Vercel):** In your Vercel project, set env vars:
+  - `NEXT_PUBLIC_APP_URL` = `https://pompomm-eight.vercel.app` (or `https://pompomm.in` once you add the domain)
+  - `NEXT_PUBLIC_API_URL` = your backend API URL (e.g. where your Node/Express backend is hosted)
+- **Backend:** Set `FRONTEND_ORIGIN` to your frontend origin(s), e.g. `https://pompomm-eight.vercel.app` or `https://pompomm.in,https://www.pompomm.in`. The backend already allows `pompomm.in`, `www.pompomm.in`, and `pompomm-eight.vercel.app` by default.
+
+#### Deploy backend to Render (fix build failure)
+
+If the build fails with "Exited with status 2":
+
+1. **Root Directory:** In Render → your service → **Settings** → set **Root Directory** to **`backend`** (so Render runs commands inside the backend folder, not the repo root).
+2. **Build Command:** Use **`npm install --include=dev && npm run build`** (so TypeScript is installed and the project compiles).
+3. **Start Command:** **`npm start`**.
+4. **Node version:** Render uses Node 18+ by default; the backend has `"engines": { "node": ">=18" }`.
+
+Then add your env vars (DATABASE_URL, JWT_SECRET, FRONTEND_ORIGIN, etc.) and redeploy.
+
+#### Deploy frontend to Vercel (fix 404 NOT_FOUND)
+
+The repo has the app in the **`frontend`** folder. In Vercel:
+
+1. **Project Settings → General → Root Directory:** set to **`frontend`** (so Vercel builds the Next.js app, not the repo root).
+2. **Environment variables:** add `NEXT_PUBLIC_APP_URL=https://pompomm-eight.vercel.app` (or your Vercel URL) and `NEXT_PUBLIC_API_URL` = your backend API URL.
+3. Redeploy after saving.
+
+If Root Directory is left empty, Vercel will build from the repo root and you’ll get **404 NOT_FOUND** (e.g. `Code: NOT_FOUND ID: bom1::...`) because there’s no Next.js app at the root.
 
 ### Redis (recommended: Upstash)
 

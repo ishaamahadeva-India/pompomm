@@ -168,7 +168,7 @@ adminRouter.patch("/campaigns/:id", async (req, res, next) => {
       if (body[k] === undefined) continue;
       set.push(`${k} = $${i++}`);
       const v = body[k];
-      if (k === "title") vals.push(sanitizeText(v, 500));
+      if (k === "title") vals.push(sanitizeText(typeof v === "string" ? v : null, 500));
       else if (k === "description") vals.push(typeof v === "string" ? sanitizeText(v, 2000) : v);
       else if (k === "sponsor_name" || k === "associate_sponsor") vals.push(typeof v === "string" ? sanitizeText(v, 200) : v);
       else if (k === "banner_image_url" || k === "media_url" || k === "cta_url") vals.push(toUrlOrNull(v as string));

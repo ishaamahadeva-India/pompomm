@@ -26,6 +26,7 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",
   "https://pompomm.in",
   "https://www.pompomm.in",
+  "https://pompomm-eight.vercel.app",
   ...(process.env.FRONTEND_ORIGIN ?? "").split(",").map((o) => o.trim()).filter(Boolean),
 ];
 app.use(cors({ origin: (origin, cb) => (!origin || allowedOrigins.includes(origin)) ? cb(null, origin || allowedOrigins[0]) : cb(null, allowedOrigins[0]), credentials: true }));
