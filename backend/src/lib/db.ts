@@ -1,4 +1,8 @@
+import dns from "dns";
 import pg from "pg";
+
+// Prefer IPv4 so Render (and other hosts without IPv6) can reach DBs that resolve to IPv6
+dns.setDefaultResultOrder("ipv4first");
 
 const { Pool } = pg;
 

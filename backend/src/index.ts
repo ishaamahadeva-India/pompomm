@@ -16,6 +16,7 @@ import { brandRouter } from "./routes/brand.js";
 import { globalRateLimiter } from "./middleware/rateLimit.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { openApiSpec } from "./openapi.js";
+import { getPool } from "./lib/db.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -43,7 +44,16 @@ app.use("/admin", adminRouter);
 app.use("/distribution", distributionRouter);
 app.use("/brand", brandRouter);
 
-app.get("/health", (_req, res) => res.json({ status: "ok", ts: new Date().toISOString() }));
+app.get("/health", async (_req, res) => {
+  let db: "ok" | "error" = "ok";
+  try {
+    const pool = getPool();
+    await pool.query("SELECT 1");
+  } catch {
+    db = "error";
+  }
+  res.json({ status: db === "ok" ? "ok" : "degraded", db, ts: new Date().toISOString() });
+});
 app.get("/openapi.json", (_req, res) => res.json(openApiSpec));
 
 const uploadDir = process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");

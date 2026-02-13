@@ -74,6 +74,15 @@ If the build fails with "Exited with status 2":
 
 Then add your env vars (DATABASE_URL, JWT_SECRET, FRONTEND_ORIGIN, etc.) and redeploy.
 
+**If POST /auth/login returns 500:**
+
+1. **Environment variables (Render → Environment):** Ensure **DATABASE_URL** (Postgres connection string) and **JWT_SECRET** are set. Add **FRONTEND_ORIGIN** (e.g. `https://pompomm-eight.vercel.app` or your Vercel URL).
+2. **Database migrations:** The backend needs tables from migrations (e.g. `users`, `refresh_tokens`). Run them once against the Render Postgres DB:
+   - From your machine (with `DATABASE_URL` pointing to the Render DB):  
+     `cd backend && npm run db:migrate` then `npm run db:migrate:enhancements` then `npm run db:migrate:distribution` then `npm run db:migrate:profile` then `npm run db:migrate:profile:extended` then `npm run db:migrate:enterprise` (and any later migrations if you added more).
+   - Or use Render’s **Shell** (if available) from the service and run the same commands there.
+3. **Check health:** `GET https://your-backend.onrender.com/health` — if it returns `"db": "error"`, the DB URL is wrong or the DB is unreachable; if `"db": "ok"`, the 500 is likely a missing table (run migrations).
+
 #### Deploy frontend to Vercel (fix 404 NOT_FOUND)
 
 The repo has the app in the **`frontend`** folder. In Vercel:
