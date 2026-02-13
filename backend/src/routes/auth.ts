@@ -30,6 +30,13 @@ const loginBody = z.object({
 const PROFILE_SELECT = `id, mobile_number, role, total_score, total_earnings, created_at, display_name, unique_creator_id, subscription_status, creator_tier,
   age, gender, email, address, city, state, pincode, occupation, hobbies, brands_liked, bio`;
 
+authRouter.all("/send-otp", (req, res, next) => {
+  if (req.method !== "POST") {
+    res.status(405).json({ error: "Method not allowed. Use POST with body: { mobile_number }." });
+    return;
+  }
+  next();
+});
 authRouter.post("/send-otp", async (req, res, next) => {
   try {
     const body = sendOtpBody.safeParse(req.body);
