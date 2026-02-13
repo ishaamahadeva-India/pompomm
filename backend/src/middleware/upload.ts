@@ -25,3 +25,26 @@ export const uploadMiddleware = multer({
     }
   },
 });
+
+const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2MB
+const AVATAR_MIMES = ["image/jpeg", "image/png", "image/webp"];
+
+const avatarStorage = multer.diskStorage({
+  destination: process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads"),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `avatar_${randomUUID()}${ext}`);
+  },
+});
+
+export const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: AVATAR_MAX_SIZE },
+  fileFilter: (_req, file, cb) => {
+    if (AVATAR_MIMES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new AppError(400, "Avatar must be JPEG, PNG or WebP") as any);
+    }
+  },
+});

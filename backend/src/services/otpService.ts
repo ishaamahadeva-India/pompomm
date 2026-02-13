@@ -19,13 +19,16 @@ function generateOtp(): string {
   return n.toString().padStart(6, "0");
 }
 
+/** In development, use a fixed OTP for testing (no SMS needed). */
+const TEST_OTP = "123456";
+
 /** Store OTP in DB (hashed) and return the plain OTP for sending */
 export async function createAndStoreOtp(mobile: string): Promise<{ otp: string; ok: boolean; error?: string }> {
   const normalized = normalizeMobile(mobile);
   if (!normalized) return { otp: "", ok: false, error: "Invalid mobile number" };
 
   const pool = getPool();
-  const otp = generateOtp();
+  const otp = process.env.NODE_ENV === "production" ? generateOtp() : TEST_OTP;
   const otpHash = hashOtp(otp);
   const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
@@ -68,7 +71,7 @@ async function sendOtpSms(mobile: string, otp: string): Promise<{ ok: boolean; e
   }
 
   if (process.env.NODE_ENV !== "production") {
-    console.log("[DEV] OTP for", mobile, ":", otp, "(Twilio not configured)");
+    console.log("[DEV] Use OTP for", mobile, ":", otp, "— (Twilio not configured)");
     return { ok: true };
   }
 

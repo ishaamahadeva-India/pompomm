@@ -19,6 +19,7 @@ type ProfileRes = {
   created_at: string;
   display_name: string | null;
   unique_creator_id: string | null;
+  profile_image_url: string | null;
   subscription_status?: string;
   creator_tier?: string;
   age: number | null;
@@ -69,7 +70,13 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [form, setForm] = useState(emptyForm);
+
+  // Use same-origin proxy so images are viewable (no cross-origin / CORS issues)
+  const avatarUrl = profile?.profile_image_url
+    ? `/api${profile.profile_image_url.startsWith("/") ? profile.profile_image_url : "/" + profile.profile_image_url}`
+    : null;
 
   const loadProfile = useCallback(() => {
     if (!token) return;
@@ -243,11 +250,78 @@ export default function ProfilePage() {
         <div className="container mx-auto px-4 py-10 max-w-3xl relative">
           <div className="flex flex-col sm:flex-row sm:items-end gap-6">
             <div className="flex items-center gap-5">
-              <div
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-bold bg-white/10 border border-white/10 text-primary shrink-0"
-                aria-hidden
-              >
-                {initial}
+              <div className="relative shrink-0">
+                <div
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-bold bg-white/10 border border-white/10 text-primary overflow-hidden"
+                  aria-hidden
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    initial
+                  )}
+                </div>
+                {editing && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <label className="cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="sr-only"
+                        disabled={avatarUploading}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file || !token) return;
+                          setAvatarUploading(true);
+                          try {
+                            const formData = new FormData();
+                            formData.set("avatar", file);
+                            const res = await fetch(`${API_BASE}/auth/me/avatar`, {
+                              method: "POST",
+                              headers: { Authorization: `Bearer ${token}` },
+                              body: formData,
+                            });
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok) throw new Error(data?.error ?? data?.message ?? "Upload failed");
+                            setProfile(data);
+                          } catch (err) {
+                            setEditError(err instanceof Error ? err.message : "Upload failed");
+                          } finally {
+                            setAvatarUploading(false);
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                      <span className="inline-block text-sm px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 hover:bg-white/15 transition-colors">
+                        {avatarUploading ? "Uploading…" : "Change photo"}
+                      </span>
+                    </label>
+                    {avatarUrl && (
+                      <button
+                        type="button"
+                        className="text-sm px-3 py-1.5 rounded-lg border border-white/10 text-muted hover:text-foreground hover:bg-white/10 transition-colors disabled:opacity-50"
+                        disabled={avatarUploading}
+                        onClick={async () => {
+                          if (!token) return;
+                          setAvatarUploading(true);
+                          try {
+                            const res = await fetch(`${API_BASE}/auth/me/avatar`, {
+                              method: "DELETE",
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok) throw new Error(data?.error ?? "Remove failed");
+                            setProfile(data);
+                          } finally {
+                            setAvatarUploading(false);
+                          }
+                        }}
+                      >
+                        Remove photo
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">

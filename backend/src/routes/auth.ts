@@ -6,6 +6,7 @@ import { authMiddleware } from "../middleware/auth.js";
 import { getPool } from "../lib/db.js";
 import { sanitizeText } from "../lib/sanitize.js";
 import { AppError } from "../middleware/errorHandler.js";
+import { avatarUpload } from "../middleware/upload.js";
 
 export const authRouter = Router();
 
@@ -27,7 +28,7 @@ const loginBody = z.object({
   device_hash: z.string().max(64).optional(),
 });
 
-const PROFILE_SELECT = `id, mobile_number, role, total_score, total_earnings, created_at, display_name, unique_creator_id, subscription_status, creator_tier,
+const PROFILE_SELECT = `id, mobile_number, role, total_score, total_earnings, created_at, display_name, unique_creator_id, profile_image_url, subscription_status, creator_tier,
   age, gender, email, address, city, state, pincode, occupation, hobbies, brands_liked, bio`;
 
 authRouter.all("/send-otp", (req, res, next) => {
@@ -190,6 +191,36 @@ authRouter.patch("/me", authMiddleware, async (req, res, next) => {
     const row = await pool.query(
       `UPDATE users SET ${updates.join(", ")} WHERE id = $${idx} RETURNING ${PROFILE_SELECT}`,
       values
+    ).then((r) => r.rows[0]);
+    res.json(row);
+  } catch (e) {
+    next(e);
+  }
+});
+
+authRouter.post("/me/avatar", authMiddleware, avatarUpload.single("avatar"), async (req, res, next) => {
+  try {
+    const userId = (req as any).userId;
+    if (!req.file) throw new AppError(400, "Avatar image required");
+    const profileImageUrl = `/uploads/${req.file.filename}`;
+    const pool = getPool();
+    const row = await pool.query(
+      `UPDATE users SET profile_image_url = $1 WHERE id = $2 RETURNING ${PROFILE_SELECT}`,
+      [profileImageUrl, userId]
+    ).then((r) => r.rows[0]);
+    res.json(row);
+  } catch (e) {
+    next(e);
+  }
+});
+
+authRouter.delete("/me/avatar", authMiddleware, async (req, res, next) => {
+  try {
+    const userId = (req as any).userId;
+    const pool = getPool();
+    const row = await pool.query(
+      `UPDATE users SET profile_image_url = NULL WHERE id = $1 RETURNING ${PROFILE_SELECT}`,
+      [userId]
     ).then((r) => r.rows[0]);
     res.json(row);
   } catch (e) {

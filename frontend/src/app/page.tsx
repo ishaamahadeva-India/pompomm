@@ -9,6 +9,8 @@ import { LeaderboardRow, type LeaderboardEntry } from "@/components/LeaderboardR
 import { useAuthStore } from "@/store/useAuthStore";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import PremiumHero from "@/components/PremiumHero";
+import { TopEarners } from "@/components/TopEarners";
 
 type CampaignsRes = { campaigns: Campaign[] };
 type LeaderboardRes = { entries: LeaderboardEntry[]; currentUserRank: number | null };
@@ -25,6 +27,10 @@ export default function DashboardPage() {
   const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
 
   useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     async function load() {
       try {
@@ -41,7 +47,7 @@ export default function DashboardPage() {
         const hero = activeRes.campaigns?.[0];
         if (hero?.id) {
           const lb = await fetch(`${API_BASE}/leaderboard/${hero.id}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            headers: { Authorization: `Bearer ${token}` },
           }).then((r) => r.json()) as LeaderboardRes;
           if (!cancelled) setLeaderboard(lb.entries ?? []);
         }
@@ -65,6 +71,11 @@ export default function DashboardPage() {
       .then((p: { display_name?: string | null } | null) => setProfileComplete(p?.display_name != null && p.display_name.trim() !== ""))
       .catch(() => setProfileComplete(null));
   }, [token]);
+
+  // Logged out: show landing hero
+  if (!token) {
+    return <PremiumHero />;
+  }
 
   if (loading) {
     return (
@@ -189,6 +200,10 @@ export default function DashboardPage() {
           )}
         </section>
       )}
+
+      <section className="mt-8">
+        <TopEarners />
+      </section>
     </main>
   );
 }
