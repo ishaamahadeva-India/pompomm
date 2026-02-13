@@ -7,43 +7,76 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-[#0B0B0C] text-center px-6 overflow-hidden">
 
-      {/* Glow */}
-      <div className="absolute w-[700px] h-[700px] bg-amber-500/10 rounded-full blur-[140px]" />
+      {/* Animated glow */}
+      <motion.div
+        className="absolute w-[700px] h-[700px] bg-amber-500/10 rounded-full blur-[140px]"
+        animate={{ opacity: [0.4, 0.7, 0.4], scale: [0.95, 1.05, 0.95] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
 
       <div className="relative max-w-5xl">
         <motion.h1
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-white text-5xl sm:text-6xl md:text-8xl font-semibold leading-tight tracking-tight"
         >
-          Performance-Driven
+          <motion.span
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="inline-block"
+          >
+            Performance-Driven
+          </motion.span>
           <br />
-          Creator Growth
+          <motion.span
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35, duration: 0.6 }}
+            className="inline-block"
+          >
+            Creator Growth
+          </motion.span>
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
           className="mt-6 text-stone-400 text-lg max-w-2xl mx-auto"
         >
           Pom Pomm connects brands and creators through measurable,
           performance-based marketing infrastructure.
         </motion.p>
 
-        <div className="mt-10 flex justify-center gap-4">
+        <motion.div
+          className="mt-10 flex justify-center gap-4 flex-wrap"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
+        >
           <Link href="/login">
-            <button className="px-6 py-3 bg-white text-black rounded-full font-medium hover:scale-105 transition">
+            <motion.button
+              className="px-6 py-3 bg-white text-black rounded-full font-medium"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               Get Started
-            </button>
+            </motion.button>
           </Link>
           <Link href="/about">
-            <button className="px-6 py-3 border border-white/20 text-white rounded-full hover:bg-white/10 transition">
+            <motion.button
+              className="px-6 py-3 border border-white/20 text-white rounded-full hover:bg-white/10"
+              whileHover={{ scale: 1.05, borderColor: "rgba(255,255,255,0.4)" }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               View Demo
-            </button>
+            </motion.button>
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
