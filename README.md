@@ -74,6 +74,12 @@ If the build fails with "Exited with status 2":
 
 Then add your env vars (DATABASE_URL, JWT_SECRET, FRONTEND_ORIGIN, etc.) and redeploy.
 
+**Supabase on Render (fix `db: "error"` / ENETUNREACH):** Render cannot use Supabase’s **direct** connection (port 5432). Use the **connection pooler** (port **6543**) instead:
+1. In [Supabase](https://supabase.com/dashboard) → your project → **Project Settings** → **Database**.
+2. Under **Connection string** choose **Connection pooling** (or **URI** for pooler).
+3. Copy the URI that uses port **6543** and host like `aws-0-<region>.pooler.supabase.com` (user is often `postgres.<project-ref>`).
+4. Set that URI as **DATABASE_URL** on Render (no need for `?sslmode=require` on the pooler; the code enables SSL for Supabase).
+
 **If POST /auth/login returns 500:**
 
 1. **Environment variables (Render → Environment):** Ensure **DATABASE_URL** (Postgres connection string) and **JWT_SECRET** are set. Add **FRONTEND_ORIGIN** (e.g. `https://pompomm-eight.vercel.app` or your Vercel URL).

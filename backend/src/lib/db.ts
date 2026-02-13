@@ -10,11 +10,16 @@ let pool: pg.Pool | null = null;
 
 export function getPool(): pg.Pool {
   if (!pool) {
+    const connectionString = process.env.DATABASE_URL;
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
       max: 20,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
+      // Supabase, Render Postgres, and most cloud Postgres require SSL
+      ssl: connectionString?.includes("supabase") || connectionString?.includes("render.com")
+        ? { rejectUnauthorized: false }
+        : undefined,
     });
     pool.on("error", (e) => console.error("DB pool error:", e));
   }
