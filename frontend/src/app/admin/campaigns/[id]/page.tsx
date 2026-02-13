@@ -35,14 +35,27 @@ type Campaign = {
 
 const CONTENT_TYPES = ["image", "video", "narrative", "question"] as const;
 
+type CampaignCreative = {
+  id: string;
+  media_url: string;
+  engagement_score: number;
+  unique_views?: number;
+  total_views?: number;
+  total_likes?: number;
+  shares: number;
+  is_campaign_creative?: boolean;
+};
+
 export default function AdminCampaignEditPage() {
   const params = useParams();
   const id = params?.id as string;
   const token = useAuthStore((s) => s.token);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [campaignCreative, setCampaignCreative] = useState<CampaignCreative | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [creativeUploading, setCreativeUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
   const [form, setForm] = useState<Partial<Campaign>>({});
@@ -53,9 +66,11 @@ export default function AdminCampaignEditPage() {
       setLoading(false);
       return;
     }
-    fetch(`${API_BASE}/campaigns/${id}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("Not found"))))
-      .then((c: Campaign) => {
+    Promise.all([
+      fetch(`${API_BASE}/campaigns/${id}`).then((r) => (r.ok ? r.json() : Promise.reject(new Error("Not found")))) as Promise<Campaign>,
+      fetch(`${API_BASE}/campaigns/${id}/creatives`).then((r) => r.json()) as Promise<{ creatives: CampaignCreative[] }>,
+    ])
+      .then(([c, { creatives }]) => {
         setCampaign(c);
         setForm({
           title: c.title,
@@ -82,6 +97,8 @@ export default function AdminCampaignEditPage() {
           correct_answer: c.correct_answer ?? "",
           cta_url: c.cta_url ?? "",
         });
+        const brand = creatives?.find((x) => x.is_campaign_creative) ?? creatives?.[0] ?? null;
+        setCampaignCreative(brand);
       })
       .catch(() => setError("Failed to load campaign"))
       .finally(() => setLoading(false));
@@ -186,6 +203,7 @@ export default function AdminCampaignEditPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="creative">Brand creative</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
         </TabsList>
 
@@ -292,6 +310,68 @@ export default function AdminCampaignEditPage() {
             </div>
             <Button type="submit" disabled={saving} className="rounded-xl">Save details</Button>
           </form>
+        </TabsContent>
+
+        <TabsContent value="creative" className="mt-6">
+          <div className="glass-card p-6 sm:p-8 rounded-2xl border border-white/10 max-w-2xl">
+            <h2 className="text-lg font-semibold mb-2">Official brand creative</h2>
+            <p className="text-muted text-sm mb-6">One creative per campaign. Users can only watch, share and like it — no creator uploads. This keeps one viral creative for the brand.</p>
+            {campaignCreative ? (
+              <div>
+                <div className="aspect-video bg-black/30 rounded-xl overflow-hidden mb-4 max-w-md">
+                  {campaignCreative.media_url.match(/\.(mp4|webm)/i) ? (
+                    <video src={campaignCreative.media_url.startsWith("http") ? campaignCreative.media_url : `${API_BASE}${campaignCreative.media_url}`} controls className="w-full h-full" />
+                  ) : (
+                    <img src={campaignCreative.media_url.startsWith("http") ? campaignCreative.media_url : `${API_BASE}${campaignCreative.media_url}`} alt="" className="w-full h-full object-contain" />
+                  )}
+                </div>
+                <p className="text-sm text-muted">
+                  {(campaignCreative.total_views ?? campaignCreative.unique_views) ?? 0} views · {(campaignCreative.total_likes ?? 0)} likes · {campaignCreative.shares} shares · Score {campaignCreative.engagement_score}
+                </p>
+                <Link href={`/campaign/${id}`} className="inline-block mt-3 text-sm text-primary hover:underline">View on campaign page →</Link>
+              </div>
+            ) : (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const input = (e.target as HTMLFormElement).querySelector<HTMLInputElement>('input[type="file"]');
+                  const file = input?.files?.[0];
+                  if (!file || !token || !id) return;
+                  setCreativeUploading(true);
+                  try {
+                    const formData = new FormData();
+                    formData.append("media", file);
+                    const res = await fetch(`${API_BASE}/admin/campaigns/${id}/creative`, {
+                      method: "POST",
+                      headers: { Authorization: `Bearer ${token}` },
+                      body: formData,
+                    });
+                    if (!res.ok) {
+                      const err = await res.json().catch(() => ({}));
+                      throw new Error(err?.error ?? err?.message ?? "Upload failed");
+                    }
+                    const created = await res.json();
+                    setCampaignCreative(created);
+                    input.value = "";
+                  } catch (err) {
+                    alert(err instanceof Error ? err.message : "Upload failed");
+                  } finally {
+                    setCreativeUploading(false);
+                  }
+                }}
+                className="space-y-4"
+              >
+                <label className="block text-sm font-medium text-muted mb-1">Image or video</label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                  required
+                  className="block w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary file:text-primary-foreground"
+                />
+                <Button type="submit" disabled={creativeUploading} className="rounded-xl">{creativeUploading ? "Uploading…" : "Upload campaign creative"}</Button>
+              </form>
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="content" className="mt-6">

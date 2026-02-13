@@ -6,6 +6,7 @@ import { type Campaign } from "@/components/CampaignCard";
 import { SponsorBadge } from "@/components/SponsorBadge";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { LeaderboardRow, type LeaderboardEntry } from "@/components/LeaderboardRow";
+import { ShareLinks } from "@/components/ShareLinks";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -15,7 +16,7 @@ type Sponsor = { id: string; sponsor_type: string; sponsor_name: string; sponsor
 type Creative = {
   id: string;
   campaign_id: string;
-  user_id: string;
+  user_id: string | null;
   media_url: string;
   engagement_score: number;
   unique_views?: number;
@@ -25,6 +26,7 @@ type Creative = {
   shares: number;
   rank?: number;
   created_at: string;
+  is_campaign_creative?: boolean;
 };
 type CampaignWithSponsors = Campaign & {
   sponsors?: Sponsor[];
@@ -56,16 +58,13 @@ export default function CampaignDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [viewingCreative, setViewingCreative] = useState<Creative | null>(null);
   const [watchSeconds, setWatchSeconds] = useState(0);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [mcqSelected, setMcqSelected] = useState<string | null>(null);
   const [mcqRecorded, setMcqRecorded] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
   const isEnded = campaign ? (campaign.status === "completed" || new Date(campaign.end_time) < new Date()) : false;
   const mediaSrc = (url: string) => (url.startsWith("http") ? url : `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`);
-  const maxCreatives = campaign?.max_creatives_allowed ?? 1;
-  const userCreativeCount = creatives.filter((c) => c.user_id === userId).length;
-  const canUpload = token && !isEnded && userCreativeCount < maxCreatives;
+  const canEngage = token && !isEnded;
 
   useEffect(() => {
     if (!id) {
@@ -101,6 +100,13 @@ export default function CampaignDetailPage() {
   }, [id, token]);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && id) {
+      const base = `${window.location.origin}/campaign/${id}`;
+      setShareUrl(userId ? `${base}?ref=${userId}` : base);
+    }
+  }, [id, userId]);
+
+  useEffect(() => {
     if (!viewingCreative) return;
     const t = setInterval(() => setWatchSeconds((s) => s + 1), 1000);
     return () => clearInterval(t);
@@ -118,44 +124,22 @@ export default function CampaignDetailPage() {
           device_hash: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 32) : "",
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 403) {
+        const msg = data?.error ?? "Active subscription required to participate.";
+        if (typeof window !== "undefined" && window.confirm(`${msg} Go to subscription?`)) router.push("/subscription");
+        return;
+      }
       if (data.accepted) {
         setViewingCreative(null);
         setWatchSeconds(0);
         setLeaderboard((prev) => prev.slice());
         window.location.reload();
       } else {
-        alert(data.message || "View not counted");
+        alert(data.message || data?.error || "View not counted");
       }
     } catch {
       alert("Failed to record view");
-    }
-  };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !token || !id) return;
-    setUploadError(null);
-    setUploading(true);
-    try {
-      const form = new FormData();
-      form.append("media", file);
-      form.append("campaign_id", id);
-      const res = await fetch(`${API_BASE}/creative/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error ?? "Upload failed");
-      }
-      window.location.reload();
-    } catch (e) {
-      setUploadError(e instanceof Error ? e.message : "Upload failed");
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
   };
 
@@ -182,7 +166,7 @@ export default function CampaignDetailPage() {
       <main className="page-container max-w-xl">
         <div className="glass-card p-8 text-center rounded-2xl border border-white/10">
           <p className="text-muted mb-4">Invalid campaign link.</p>
-          <Button onClick={() => router.push("/")} className="rounded-xl">Back to campaigns</Button>
+          <Button onClick={() => router.push("/dashboard")} className="rounded-xl">Back to campaigns</Button>
         </div>
       </main>
     );
@@ -209,7 +193,7 @@ export default function CampaignDetailPage() {
       <main className="page-container max-w-xl">
         <div className="glass-card p-8 text-center rounded-2xl border border-white/10">
           <p className="text-destructive mb-4">{error || "Campaign not found"}</p>
-          <Button onClick={() => router.push("/")} className="rounded-xl">Back to campaigns</Button>
+          <Button onClick={() => router.push("/dashboard")} className="rounded-xl">Back to campaigns</Button>
         </div>
       </main>
     );
@@ -218,7 +202,7 @@ export default function CampaignDetailPage() {
   return (
     <main className="page-container">
       <div className="mb-6">
-        <Button variant="ghost" size="sm" className="rounded-lg" onClick={() => router.push("/")}>
+        <Button variant="ghost" size="sm" className="rounded-lg" onClick={() => router.push("/dashboard")}>
           ← Back
         </Button>
       </div>
@@ -259,6 +243,15 @@ export default function CampaignDetailPage() {
           )}
         </div>
       </div>
+
+      {shareUrl && (
+        <div className="glass-card p-6 sm:p-8 mb-8 rounded-2xl border border-white/10">
+          <ShareLinks
+            url={shareUrl}
+            title={campaign?.title ? `${campaign.title} — Pom Pomm` : "Check this campaign on Pom Pomm"}
+          />
+        </div>
+      )}
 
       {(campaign.banner_image_url || campaign.content_type || campaign.cta_url) && (
         <div className="glass-card p-6 sm:p-8 mb-8 rounded-2xl border border-white/10 space-y-6">
@@ -345,31 +338,19 @@ export default function CampaignDetailPage() {
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-lg font-semibold">Creatives</h2>
-          {canUpload && (
-            <div className="glass-card p-5 mb-4 rounded-2xl border border-white/10">
-              <label className="block text-sm font-medium text-muted mb-2">
-                Upload your creative (image or video) {userCreativeCount >= maxCreatives && `(max ${maxCreatives} per campaign)`}
-              </label>
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-                onChange={handleUpload}
-                disabled={uploading || userCreativeCount >= maxCreatives}
-                className="block w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary file:text-primary-foreground"
-              />
-              {uploadError && <p className="text-sm text-destructive mt-2">{uploadError}</p>}
-              {uploading && <p className="text-sm text-muted mt-2">Uploading…</p>}
-            </div>
-          )}
+          <h2 className="text-lg font-semibold">Brand creative</h2>
           {creatives.length === 0 ? (
             <div className="glass-card p-10 text-center text-muted rounded-2xl border border-white/10">
-              No creatives yet. {token ? "Upload one above to participate." : "Log in to upload."}
+              <p>The brand will add one creative for this campaign.</p>
+              <p className="text-sm mt-2">Once it&apos;s live, watch, share and like it to support the campaign.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {creatives.map((c) => (
                 <div key={c.id} className="glass-card p-5 rounded-2xl border border-white/10">
+                  {c.is_campaign_creative && (
+                    <p className="text-xs font-medium text-primary mb-2 uppercase tracking-wider">Official brand creative</p>
+                  )}
                   <div className="aspect-video bg-black/30 rounded-xl overflow-hidden mb-4">
                     {c.media_url.match(/\.(mp4|webm)/i) ? (
                       <video src={mediaSrc(c.media_url)} controls className="w-full h-full" />
@@ -379,11 +360,9 @@ export default function CampaignDetailPage() {
                   </div>
                   <div className="flex justify-between items-center flex-wrap gap-2">
                     <span className="text-sm text-muted">
-                      {c.rank && <span className="font-medium">Rank #{c.rank}</span>}
-                      {" · "}
                       {(c.total_views ?? c.unique_views) ?? 0} views · {(c.total_unique_views ?? c.unique_views) ?? 0} unique · {(c.total_likes ?? 0)} likes · {c.shares} shares · Score {c.engagement_score}
                     </span>
-                    {canUpload && (
+                    {canEngage && (
                       <>
                         <Button
                           size="sm"
@@ -400,6 +379,14 @@ export default function CampaignDetailPage() {
                       </>
                     )}
                   </div>
+                  {shareUrl && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <ShareLinks
+                        url={shareUrl}
+                        title={campaign?.title ? `${campaign.title} — Pom Pomm` : "Check this campaign on Pom Pomm"}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

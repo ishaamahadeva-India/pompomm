@@ -4,38 +4,22 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-white/10 bg-background/50">
-      <div className="container mx-auto max-w-6xl px-4 py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div>
-            <Link href="/" className="font-semibold text-foreground">
-              Pom Pomm
-            </Link>
-            <p className="text-sm text-muted mt-1">
-              Creator performance platform
-            </p>
-          </div>
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <Link href="/about" className="text-muted hover:text-foreground transition-colors">
-              About Us
-            </Link>
-            <Link href="/contact" className="text-muted hover:text-foreground transition-colors">
-              Contact
-            </Link>
-            <Link href="/terms" className="text-muted hover:text-foreground transition-colors">
-              Terms & Conditions
-            </Link>
-            <Link href="/privacy" className="text-muted hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/refund" className="text-muted hover:text-foreground transition-colors">
-              Refund Policy
-            </Link>
-          </nav>
+    <footer className="bg-[#0B0B0C] border-t border-white/5 text-stone-400 py-12 px-6">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
+
+        <Link href="/" className="text-xs tracking-[0.35em] text-white mb-4 md:mb-0">
+          POM POMM
+        </Link>
+
+        <div className="flex gap-6 text-sm">
+          <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
+          <Link href="/terms" className="hover:text-white transition">Terms</Link>
+          <Link href="/contact" className="hover:text-white transition">Contact</Link>
         </div>
-        <p className="text-xs text-muted mt-6 pt-6 border-t border-white/5">
-          © {new Date().getFullYear()} Pom Pomm. All rights reserved.
-        </p>
+
+        <div className="text-xs mt-4 md:mt-0">
+          © 2026 Pom Pomm. All rights reserved.
+        </div>
       </div>
     </footer>
   );

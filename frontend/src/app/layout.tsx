@@ -54,7 +54,7 @@ export default function RootLayout({
         <PwaRegister />
         <AuthRefreshProvider>
           <div className="flex min-h-screen flex-col">
-            <div className="flex-1">{children}</div>
+            <div className="flex-1 pt-16">{children}</div>
             <Footer />
           </div>
         </AuthRefreshProvider>

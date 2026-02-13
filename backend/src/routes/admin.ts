@@ -1,10 +1,13 @@
 import { Router } from "express";
+import { randomUUID } from "crypto";
 import { getPool } from "../lib/db.js";
 import { authMiddleware, requireAdmin } from "../middleware/auth.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { sanitizeText } from "../lib/sanitize.js";
 import { z } from "zod";
 import { getTierHistory, recordTierChange } from "../services/creatorTierService.js";
+import { uploadMiddleware } from "../middleware/upload.js";
+import { getRedisClient } from "../lib/redis.js";
 
 export const adminRouter = Router();
 adminRouter.use(authMiddleware, requireAdmin);
@@ -182,6 +185,41 @@ adminRouter.patch("/campaigns/:id", async (req, res, next) => {
     const r = await pool.query(`UPDATE campaigns SET ${set.join(", ")} WHERE id = $${i} RETURNING *`, vals);
     if (!r.rows[0]) throw new AppError(404, "Campaign not found");
     res.json(r.rows[0]);
+  } catch (e) {
+    next(e);
+  }
+});
+
+/** Upload single brand creative for a campaign (Model B: one viral creative). Users can only watch/share/like. */
+adminRouter.post("/campaigns/:id/creative", uploadMiddleware.single("media"), async (req, res, next) => {
+  try {
+    const { id: campaignId } = req.params;
+    if (!req.file) throw new AppError(400, "Media file required");
+    const pool = getPool();
+    const campaign = await pool.query("SELECT id FROM campaigns WHERE id = $1", [campaignId]).then((r) => r.rows[0]);
+    if (!campaign) throw new AppError(404, "Campaign not found");
+    const existing = await pool.query(
+      "SELECT id FROM creatives WHERE campaign_id = $1 AND is_campaign_creative = true",
+      [campaignId]
+    ).then((r) => r.rows[0]);
+    if (existing) throw new AppError(400, "Campaign already has a brand creative. Replace or delete it first.");
+    const mediaUrl = process.env.R2_PUBLIC_URL ? `${process.env.R2_PUBLIC_URL}/${req.file.filename}` : `/uploads/${req.file.filename}`;
+    const creativeId = randomUUID();
+    await pool.query(
+      "INSERT INTO creatives (id, campaign_id, user_id, media_url, is_campaign_creative) VALUES ($1, $2, NULL, $3, true)",
+      [creativeId, campaignId, mediaUrl]
+    );
+    try {
+      const redis = getRedisClient();
+      await redis.del(`leaderboard:${campaignId}`);
+    } catch {
+      /* ignore */
+    }
+    const row = await pool.query(
+      "SELECT id, campaign_id, user_id, media_url, engagement_score, unique_views, shares, total_views, total_likes, is_campaign_creative, created_at FROM creatives WHERE id = $1",
+      [creativeId]
+    ).then((r) => r.rows[0]);
+    res.status(201).json(row);
   } catch (e) {
     next(e);
   }

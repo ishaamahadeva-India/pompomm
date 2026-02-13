@@ -4,29 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Button } from "./ui/Button";
-import { CreatorTierBadge } from "./CreatorTierBadge";
-
-const navLinkClass = "block text-sm px-4 py-3 rounded-lg text-muted hover:text-foreground hover:bg-white/5 transition-colors tap-target w-full text-left";
 
 export function Header() {
   const { user, logout } = useAuthStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    const onResize = () => {
-      if (window.innerWidth >= 640) setMobileMenuOpen(false);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [mobileMenuOpen]);
+  useEffect(() => setMobileOpen(false), [pathname]);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -37,88 +22,74 @@ export function Header() {
     }
   };
 
+  const navClass = "text-stone-400 text-sm hover:text-white transition";
+  const navClassMobile = "block py-3 text-stone-400 hover:text-white transition";
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/90 backdrop-blur-xl safe-area-padding">
-      <div className="container mx-auto flex h-14 min-h-[44px] items-center justify-between px-4 max-w-6xl">
-        <Link href="/" className="font-semibold text-lg tracking-tight shrink-0 py-2">
-          Pom Pomm
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/40 border-b border-white/5">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+        <Link href="/" className="text-xs tracking-[0.35em] text-white font-medium">
+          POM POMM
         </Link>
-        <nav className="hidden sm:flex items-center gap-1 sm:gap-2">
-          <Link href="/" className="text-sm px-3 py-2 rounded-lg text-muted hover:text-foreground hover:bg-white/5 transition-colors min-h-[44px] inline-flex items-center">
-            Campaigns
-          </Link>
+
+        <nav className="hidden md:flex items-center gap-8">
+          <Link href="/#features" className={navClass} title="How Pom Pomm works — features and value">Product</Link>
+          <Link href="/subscription" className={navClass}>Pricing</Link>
+          <Link href="/dashboard" className={navClass} title="Your campaigns and activity">Dashboard</Link>
+          <Link href="/about" className={navClass}>Brands</Link>
           {user ? (
             <>
-              <Link href="/distribution" className="text-sm px-3 py-2 rounded-lg text-muted hover:text-foreground hover:bg-white/5 transition-colors min-h-[44px] inline-flex items-center">
-                Verified Performance
-              </Link>
-              <Link href="/subscription" className="text-sm px-3 py-2 rounded-lg text-muted hover:text-foreground hover:bg-white/5 transition-colors min-h-[44px] inline-flex items-center">
-                Subscription
-              </Link>
-              <Link href="/profile" className="text-sm px-3 py-2 rounded-lg text-muted hover:text-foreground hover:bg-white/5 transition-colors flex items-center gap-1.5 min-h-[44px]">
-                Profile
-                {user.creator_tier && user.creator_tier !== "bronze" && (
-                  <CreatorTierBadge tier={user.creator_tier} size="sm" />
-                )}
-              </Link>
-              {(user.role === "admin" || user.role === "brand_admin") && (
-                <Link href="/admin" className="text-sm px-3 py-2 rounded-lg text-primary font-medium min-h-[44px] inline-flex items-center">
-                  {user.role === "brand_admin" ? "Brand" : "Admin"}
-                </Link>
-              )}
-              <Button variant="ghost" size="sm" className="rounded-lg ml-1 min-h-[44px]" onClick={handleLogout} disabled={loggingOut}>
-                {loggingOut ? "Logging out…" : "Log out"}
-              </Button>
-            </>
-          ) : (
-            <Link href="/login">
-              <Button size="sm" className="rounded-xl min-h-[44px]">Log in</Button>
-            </Link>
-          )}
-        </nav>
-        <button
-          type="button"
-          aria-label="Toggle menu"
-          aria-expanded={mobileMenuOpen}
-          className="sm:hidden p-2 rounded-lg text-muted hover:text-foreground hover:bg-white/5 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
-          onClick={() => setMobileMenuOpen((o) => !o)}
-        >
-          {mobileMenuOpen ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
-          ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
-          )}
-        </button>
-      </div>
-      {mobileMenuOpen && (
-        <div className="sm:hidden border-t border-white/10 bg-background/95 backdrop-blur-xl px-4 py-3 flex flex-col gap-1">
-          <Link href="/" className={navLinkClass}>Campaigns</Link>
-          {user ? (
-            <>
-              <Link href="/distribution" className={navLinkClass}>Verified Performance</Link>
-              <Link href="/subscription" className={navLinkClass}>Subscription</Link>
-              <Link href="/profile" className={`${navLinkClass} flex items-center gap-1.5`}>
-                Profile
-                {user.creator_tier && user.creator_tier !== "bronze" && (
-                  <CreatorTierBadge tier={user.creator_tier} size="sm" />
-                )}
-              </Link>
-              {(user.role === "admin" || user.role === "brand_admin") && (
-                <Link href="/admin" className={navLinkClass}>{user.role === "brand_admin" ? "Brand" : "Admin"}</Link>
-              )}
+              <Link href="/profile" className={navClass}>Profile</Link>
               <button
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className={navLinkClass}
+                className="px-4 py-2 rounded-full text-sm border border-white/20 text-white hover:bg-white/10 transition disabled:opacity-50"
               >
+                {loggingOut ? "…" : "Log out"}
+              </button>
+            </>
+          ) : (
+            <Link href="/login">
+              <button className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium hover:opacity-90 transition">
+                Login
+              </button>
+            </Link>
+          )}
+        </nav>
+
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          aria-label="Menu"
+          aria-expanded={mobileOpen}
+          className="md:hidden p-2 text-white"
+          onClick={() => setMobileOpen((o) => !o)}
+        >
+          {mobileOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-white/5 bg-black/90 backdrop-blur-md px-6 py-4">
+          <Link href="/#features" className={navClassMobile} title="How Pom Pomm works">Product</Link>
+          <Link href="/subscription" className={navClassMobile}>Pricing</Link>
+          <Link href="/dashboard" className={navClassMobile}>Dashboard</Link>
+          <Link href="/about" className={navClassMobile}>Brands</Link>
+          {user ? (
+            <>
+              <Link href="/profile" className={navClassMobile}>Profile</Link>
+              <button type="button" onClick={handleLogout} disabled={loggingOut} className={navClassMobile + " w-full text-left"}>
                 {loggingOut ? "Logging out…" : "Log out"}
               </button>
             </>
           ) : (
-            <Link href="/login" className={navLinkClass}>
-              <span className="font-medium text-primary">Log in</span>
-            </Link>
+            <Link href="/login" className={navClassMobile + " font-medium text-white"}>Login</Link>
           )}
         </div>
       )}

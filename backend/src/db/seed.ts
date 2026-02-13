@@ -9,8 +9,8 @@ async function seed() {
   end.setDate(end.getDate() + 30);
 
   await pool.query(
-    `INSERT INTO campaigns (title, description, category, sponsor_name, associate_sponsor, reward_pool, start_time, end_time, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    `INSERT INTO campaigns (title, description, category, sponsor_name, associate_sponsor, reward_pool, start_time, end_time, status, max_creatives_allowed)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
     [
       "Spring 2025 Brand Campaign",
       "Create and share content for our spring product launch. Top creators by engagement score share the reward pool.",
@@ -21,12 +21,13 @@ async function seed() {
       start,
       end,
       "active",
+      2,
     ]
   );
 
   await pool.query(
-    `INSERT INTO campaigns (title, description, category, sponsor_name, reward_pool, start_time, end_time, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    `INSERT INTO campaigns (title, description, category, sponsor_name, reward_pool, start_time, end_time, status, max_creatives_allowed)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       "Knowledge Series: Tech Tips",
       "Sponsored educational content. Earn score through views and shares.",
@@ -36,6 +37,7 @@ async function seed() {
       start,
       end,
       "active",
+      2,
     ]
   );
 

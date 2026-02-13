@@ -55,6 +55,7 @@ campaignsRouter.get("/:id/creatives", async (req, res, next) => {
                 COALESCE(total_likes, 0) AS total_likes,
                 shares,
                 created_at,
+                COALESCE(is_campaign_creative, false) AS is_campaign_creative,
                 ROW_NUMBER() OVER (ORDER BY engagement_score DESC)::int AS rank
          FROM creatives WHERE campaign_id = $1 ORDER BY engagement_score DESC`,
         [id]

@@ -20,6 +20,7 @@
     "db:migrate:campaign-content": "tsx src/db/migrate-campaign-content.ts",
     "db:migrate:otp": "tsx src/db/migrate-otp.ts",
     "db:migrate:profile-avatar": "tsx src/db/migrate-profile-avatar.ts",
+    "db:migrate:campaign-creative": "tsx src/db/migrate-campaign-creative.ts",
     "db:seed": "tsx src/db/seed.ts",
     "leaderboard:sync": "tsx src/jobs/leaderboard-sync.ts",
     "prune:logs": "tsx src/jobs/prune-old-logs.ts",

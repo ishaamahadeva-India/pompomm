@@ -45,6 +45,13 @@ export const creativesService = {
       [campaignId]
     ).then((r) => r.rows[0]);
     if (!campaign) throw new AppError(404, "Campaign not found");
+    const hasBrandCreative = await pool.query(
+      "SELECT 1 FROM creatives WHERE campaign_id = $1 AND is_campaign_creative = true",
+      [campaignId]
+    ).then((r) => r.rows[0]);
+    if (hasBrandCreative) {
+      throw new AppError(400, "This campaign uses one brand creative. Only the brand (admin) uploads; users watch, share and like.");
+    }
     const maxAllowed = campaign.max_creatives_allowed ?? 1;
     const count = await pool.query(
       "SELECT COUNT(*) AS c FROM creatives WHERE campaign_id = $1 AND user_id = $2",

@@ -30,8 +30,17 @@ export default function AdminCampaignsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2 tracking-tight">Campaign management</h1>
-      <p className="text-muted text-sm mb-8">View and manage all campaigns.</p>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold mb-2 tracking-tight">Campaign management</h1>
+          <p className="text-muted text-sm">View and manage all campaigns. Create one to let creators upload videos/images or add campaign content (image, video, question).</p>
+        </div>
+        <Link href="/admin/campaigns/new">
+          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:opacity-90 transition">
+            Create campaign
+          </button>
+        </Link>
+      </div>
       <div className="glass-card overflow-hidden rounded-2xl border border-white/10 table-scroll">
         <table className="w-full text-left">
           <thead>

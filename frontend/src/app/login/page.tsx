@@ -85,7 +85,7 @@ export default function LoginPage() {
         data.refreshToken,
         data.expiresIn ?? 7 * 24 * 60 * 60
       );
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (e) {
       if (e instanceof TypeError && e.message === "Failed to fetch") {

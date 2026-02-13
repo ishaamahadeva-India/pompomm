@@ -81,7 +81,7 @@ export const leaderboardService = {
               SUM(COALESCE(c.total_likes, 0)) AS total_likes,
               SUM(c.shares) AS shares
        FROM creatives c
-       JOIN users u ON u.id = c.user_id
+       LEFT JOIN users u ON u.id = c.user_id
        WHERE c.campaign_id = $1
        GROUP BY c.user_id, u.mobile_number, u.unique_creator_id
        ORDER BY total_score DESC
@@ -91,8 +91,8 @@ export const leaderboardService = {
 
     return result.rows.map((row, i) => ({
       rank: i + 1,
-      user_id: row.user_id,
-      display_id: row.unique_creator_id ?? (row.mobile_number ? `***${String(row.mobile_number).slice(-4)}` : "Anonymous"),
+      user_id: row.user_id ?? "",
+      display_id: row.user_id == null ? "Brand" : (row.unique_creator_id ?? (row.mobile_number ? `***${String(row.mobile_number).slice(-4)}` : "Anonymous")),
       unique_creator_id: row.unique_creator_id ?? undefined,
       total_score: Number(row.total_score) || 0,
       unique_views: Number(row.unique_views) || 0,
@@ -115,7 +115,7 @@ export const leaderboardService = {
              SUM(COALESCE(c.total_likes, 0)) AS total_likes,
              SUM(c.shares) AS shares
       FROM creatives c
-      JOIN users u ON u.id = c.user_id
+      LEFT JOIN users u ON u.id = c.user_id
       JOIN campaigns camp ON camp.id = c.campaign_id
       WHERE c.campaign_id = $1`;
 
@@ -138,8 +138,8 @@ export const leaderboardService = {
 
     return result.rows.map((row, i) => ({
       rank: i + 1,
-      user_id: row.user_id,
-      display_id: row.unique_creator_id ?? (row.mobile_number ? `***${String(row.mobile_number).slice(-4)}` : "Anonymous"),
+      user_id: row.user_id ?? "",
+      display_id: row.user_id == null ? "Brand" : (row.unique_creator_id ?? (row.mobile_number ? `***${String(row.mobile_number).slice(-4)}` : "Anonymous")),
       unique_creator_id: row.unique_creator_id ?? undefined,
       total_score: Number(row.total_score) || 0,
       unique_views: Number(row.unique_views) || 0,
@@ -153,6 +153,7 @@ export const leaderboardService = {
     const entries = await this.refreshLeaderboard(campaignId);
     const snapshotDate = date || new Date().toISOString().slice(0, 10);
     for (const e of entries) {
+      if (!e.user_id) continue;
       await pool.query(
         `INSERT INTO leaderboard_snapshots (campaign_id, user_id, rank, total_score, total_unique_views, total_likes, total_shares, snapshot_date)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8::date)`,

@@ -69,7 +69,7 @@ export default function LeaderboardPage() {
       <main className="page-container max-w-xl">
         <div className="glass-card p-8 text-center rounded-2xl border border-white/10">
           <p className="text-destructive mb-4">{error || "Campaign not found"}</p>
-          <Button onClick={() => router.push("/")} className="rounded-xl">Back to campaigns</Button>
+          <Button onClick={() => router.push("/dashboard")} className="rounded-xl">Back to campaigns</Button>
         </div>
       </main>
     );
