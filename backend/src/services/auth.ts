@@ -37,11 +37,16 @@ export const authService = {
     expiresIn: number;
   }> {
     const pool = getPool();
-    const normalized = mobile_number.replace(/\D/g, "").slice(-10);
-    if (normalized.length < 10) {
+    const digits = mobile_number.replace(/\D/g, "");
+    const last10 = digits.slice(-10);
+    if (last10.length < 10) {
       throw new Error("Invalid mobile number");
     }
-    const fullNumber = `+${normalized}`;
+    // E.164 for India: +919876543210 (so Twilio and OTP match)
+    const fullNumber = (digits.length === 10 || (digits.length >= 11 && digits.startsWith("91")))
+      ? `+91${last10}`
+      : `+${last10}`;
+    const legacyNumber = `+${last10}`;
 
     if (device_hash) {
       const countResult = await pool.query(
@@ -58,8 +63,8 @@ export const authService = {
     }
 
     let row = await pool.query(
-      "SELECT id, mobile_number, role, creator_tier FROM users WHERE mobile_number = $1",
-      [fullNumber]
+      "SELECT id, mobile_number, role, creator_tier FROM users WHERE mobile_number = $1 OR mobile_number = $2",
+      [fullNumber, legacyNumber]
     ).then((r) => r.rows[0]);
 
     if (!row) {
@@ -69,8 +74,14 @@ export const authService = {
         [id, fullNumber, device_hash || null]
       );
       row = { id, mobile_number: fullNumber, role: "user", creator_tier: "bronze" };
-    } else if (device_hash) {
-      await pool.query("UPDATE users SET device_hash = $1 WHERE id = $2", [device_hash, row.id]);
+    } else {
+      if (row.mobile_number === legacyNumber) {
+        await pool.query("UPDATE users SET mobile_number = $1 WHERE id = $2", [fullNumber, row.id]);
+        row = { ...row, mobile_number: fullNumber };
+      }
+      if (device_hash) {
+        await pool.query("UPDATE users SET device_hash = $1 WHERE id = $2", [device_hash, row.id]);
+      }
     }
 
     const payload: TokenPayload = { userId: row.id, role: row.role };

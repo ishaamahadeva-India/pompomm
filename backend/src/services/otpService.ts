@@ -4,9 +4,16 @@ import { getPool } from "../lib/db.js";
 const OTP_LENGTH = 6;
 const OTP_EXPIRY_MINUTES = 5;
 
+/** Normalize to E.164: Indian 10-digit → +919876543210 for Twilio and DB consistency */
 function normalizeMobile(mobile: string): string {
-  const digits = mobile.replace(/\D/g, "").slice(-10);
-  return digits.length >= 10 ? `+${digits}` : "";
+  const digits = mobile.replace(/\D/g, "");
+  const last10 = digits.slice(-10);
+  if (last10.length < 10) return "";
+  // 10 digits only = Indian local; or 11+ digits starting with 91 = Indian with country code
+  if (digits.length === 10 || (digits.length >= 11 && digits.startsWith("91"))) {
+    return `+91${last10}`;
+  }
+  return `+${last10}`;
 }
 
 function hashOtp(otp: string): string {
