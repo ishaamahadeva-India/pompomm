@@ -22,13 +22,13 @@ export function Header() {
     }
   };
 
-  const navClass = "text-stone-400 text-sm hover:text-white transition";
-  const navClassMobile = "block py-3 text-stone-400 hover:text-white transition";
+  const navClass = "text-muted-foreground text-sm hover:text-foreground transition";
+  const navClassMobile = "block py-3 text-muted-foreground hover:text-foreground transition";
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-black/40 border-b border-white/5">
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-background/90 border-b border-border">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-        <Link href="/" className="text-xs tracking-[0.35em] text-white font-medium">
+        <Link href="/" className="text-xs tracking-[0.35em] text-foreground font-medium">
           POM POMM
         </Link>
 
@@ -44,14 +44,14 @@ export function Header() {
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="px-4 py-2 rounded-full text-sm border border-white/20 text-white hover:bg-white/10 transition disabled:opacity-50"
+                className="px-4 py-2 rounded-full text-sm border border-border text-foreground hover:bg-muted transition disabled:opacity-50"
               >
                 {loggingOut ? "…" : "Log out"}
               </button>
             </>
           ) : (
             <Link href="/login">
-              <button className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium hover:opacity-90 transition">
+              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:opacity-90 transition">
                 Login
               </button>
             </Link>
@@ -76,7 +76,7 @@ export function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/5 bg-black/90 backdrop-blur-md px-6 py-4">
+        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md px-6 py-4">
           <Link href="/#features" className={navClassMobile} title="How Pom Pomm works">Product</Link>
           <Link href="/subscription" className={navClassMobile}>Pricing</Link>
           <Link href="/dashboard" className={navClassMobile}>Dashboard</Link>
@@ -89,7 +89,7 @@ export function Header() {
               </button>
             </>
           ) : (
-            <Link href="/login" className={navClassMobile + " font-medium text-white"}>Login</Link>
+            <Link href="/login" className={navClassMobile + " font-medium text-primary"}>Login</Link>
           )}
         </div>
       )}

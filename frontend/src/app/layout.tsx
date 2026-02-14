@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { PT_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -7,15 +7,11 @@ import { AuthRefreshProvider } from "@/components/AuthRefreshProvider";
 import { PwaRegister } from "@/components/PwaRegister";
 import PremiumSplash from "@/components/PremiumSplash";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const ptSans = PT_Sans({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-pt-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +33,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: "#0c0a09",
+  themeColor: "#0a0614",
   viewportFit: "cover",
 };
 
@@ -48,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground safe-area-padding`}>
+      <body className={`${ptSans.variable} font-sans antialiased min-h-screen bg-background text-foreground safe-area-padding app-theme`}>
         <PremiumSplash />
         <Header />
         <PwaRegister />

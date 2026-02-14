@@ -10,21 +10,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: { DEFAULT: "var(--primary)", foreground: "var(--primary-foreground)" },
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+        popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
+        primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+        secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+        muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
         accent: {
-          red: "var(--accent-red)",
-          cyan: "var(--accent-cyan)",
-          green: "var(--accent-green)",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+          red: "#dc2626",
+          cyan: "#06b6d4",
+          green: "hsl(var(--success))",
         },
-        gold: "var(--gold-reward)",
-        muted: "var(--muted)",
-        destructive: "var(--destructive)",
+        destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+        success: { DEFAULT: "hsl(var(--success))", foreground: "hsl(var(--success-foreground))" },
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        gold: "hsl(var(--gold-reward))",
         "glass-border": "var(--glass-border)",
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
       backgroundImage: {
-        "primary-gradient": "linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)",
+        "primary-gradient": "linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(38 92% 50%) 50%, hsl(25 90% 48%) 100%)",
+      },
+      fontFamily: {
+        sans: ["var(--font-pt-sans)", "PT Sans", "system-ui", "sans-serif"],
       },
       animation: {
         "fade-in": "fadeIn 0.3s ease-out",

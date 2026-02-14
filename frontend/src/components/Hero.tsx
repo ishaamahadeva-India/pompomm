@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-[#0B0B0C] text-center px-6 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-background text-center px-6 overflow-hidden">
 
       {/* Animated glow */}
       <motion.div
@@ -19,7 +19,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-white text-5xl sm:text-6xl md:text-8xl font-semibold leading-tight tracking-tight"
+          className="text-foreground text-5xl sm:text-6xl md:text-8xl font-semibold leading-tight tracking-tight"
         >
           <motion.span
             initial={{ opacity: 0, x: -20 }}
@@ -44,7 +44,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-6 text-stone-400 text-lg max-w-2xl mx-auto"
+          className="mt-6 text-muted-foreground text-lg max-w-2xl mx-auto"
         >
           Pom Pomm connects brands and creators through measurable,
           performance-based marketing infrastructure.
@@ -58,7 +58,7 @@ export default function Hero() {
         >
           <Link href="/login">
             <motion.button
-              className="px-6 py-3 bg-white text-black rounded-full font-medium"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}

@@ -19,7 +19,7 @@ const items = [
 
 export default function Features() {
   return (
-    <section id="features" className="bg-[#0B0B0C] py-32 px-6 text-white">
+    <section id="features" className="bg-background py-32 px-6 text-foreground">
       <div className="max-w-6xl mx-auto text-center">
         <motion.h2
           className="text-4xl font-semibold mb-16"
@@ -52,7 +52,7 @@ export default function Features() {
                 <span className="text-amber-400 font-bold text-lg">{i + 1}</span>
               </motion.div>
               <h3 className="text-xl font-medium mb-4">{item.title}</h3>
-              <p className="text-stone-400 text-sm">{item.desc}</p>
+              <p className="text-muted-foreground text-sm">{item.desc}</p>
             </motion.div>
           ))}
         </div>

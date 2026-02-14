@@ -15,7 +15,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="bg-black py-28 px-6 text-white overflow-hidden">
+    <section className="bg-background py-28 px-6 text-foreground overflow-hidden">
       <div className="max-w-5xl mx-auto text-center">
         <motion.h2
           className="text-4xl font-semibold mb-16"
@@ -39,7 +39,7 @@ export default function Testimonials() {
               whileHover={{ scale: 1.02, borderColor: "rgba(255,255,255,0.2)", backgroundColor: "rgba(255,255,255,0.07)" }}
             >
               <motion.p
-                className="text-stone-300"
+                className="text-foreground/90"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
@@ -48,7 +48,7 @@ export default function Testimonials() {
                 &ldquo;{item.quote}&rdquo;
               </motion.p>
               <motion.div
-                className="mt-6 text-sm text-stone-400"
+                className="mt-6 text-sm text-muted-foreground"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}

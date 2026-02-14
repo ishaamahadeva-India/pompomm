@@ -2,57 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Pom Pomm logo palette: gold/amber text, red megaphone, cyan sparkles */
-  --background: #0c0a09;
-  --foreground: #e7e5e4;
-  --primary: #f59e0b;
-  --primary-foreground: #0c0a09;
-  --accent-red: #dc2626;
-  --accent-cyan: #06b6d4;
-  --accent-green: #22c55e;
-  --gold-reward: #eab308;
-  --glass-card-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --muted: #78716c;
-  --destructive: #dc2626;
+@layer base {
+  :root {
+    --background: 220 20% 98%;
+    --foreground: 220 10% 20%;
+    --card: 220 20% 100%;
+    --card-foreground: 220 10% 20%;
+    --popover: 220 20% 100%;
+    --popover-foreground: 220 10% 20%;
+    --primary: 260 70% 55%;
+    --primary-foreground: 260 70% 98%;
+    --secondary: 45 95% 55%;
+    --secondary-foreground: 45 95% 15%;
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 5% 45%;
+    --accent: 180 80% 40%;
+    --accent-foreground: 180 80% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 145 65% 45%;
+    --success-foreground: 145 65% 98%;
+    --border: 220 20% 90%;
+    --input: 220 20% 92%;
+    --ring: 260 70% 60%;
+    --radius: 0.75rem;
+    --chart-1: 260 70% 55%;
+    --chart-2: 45 95% 55%;
+    --chart-3: 180 80% 40%;
+    --chart-4: 27 87% 67%;
+    --chart-5: 197 37% 24%;
+    --sidebar-background: 220 15% 15%;
+    --sidebar-foreground: 220 10% 80%;
+    --sidebar-primary: 180 70% 55%;
+    --sidebar-primary-foreground: 180 70% 10%;
+    --sidebar-accent: 220 15% 25%;
+    --sidebar-accent-foreground: 220 10% 95%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 180 80% 45%;
+    /* Pom Pomm extras */
+    --gold-reward: 45 95% 55%;
+    --glass-card-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark {
+    --background: 220 15% 10%;
+    --foreground: 220 10% 90%;
+    --card: 220 15% 15%;
+    --card-foreground: 220 10% 90%;
+    --popover: 220 15% 15%;
+    --popover-foreground: 220 10% 90%;
+    --primary: 260 70% 65%;
+    --primary-foreground: 260 70% 10%;
+    --secondary: 45 85% 50%;
+    --secondary-foreground: 45 85% 10%;
+    --muted: 220 15% 25%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 180 70% 55%;
+    --accent-foreground: 180 70% 98%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 145 55% 40%;
+    --success-foreground: 145 55% 98%;
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 260 80% 65%;
+    --chart-1: 260 70% 65%;
+    --chart-2: 45 85% 50%;
+    --chart-3: 180 70% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 220 15% 10%;
+    --sidebar-foreground: 220 10% 80%;
+    --sidebar-primary: 180 70% 55%;
+    --sidebar-primary-foreground: 180 70% 10%;
+    --sidebar-accent: 220 15% 25%;
+    --sidebar-accent-foreground: 220 10% 95%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 180 80% 45%;
+    --gold-reward: 45 85% 50%;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: "PT Sans", sans-serif;
+    @apply bg-background text-foreground;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
 }
 
+/* Pom Pomm utilities */
 .primary-gradient {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
+  background: linear-gradient(135deg, hsl(45 95% 55%) 0%, hsl(38 92% 50%) 50%, hsl(25 90% 48%) 100%);
 }
-
 .glass-card {
   background: var(--glass-card-bg);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   backdrop-filter: blur(12px);
 }
-
-.accent-green {
-  color: var(--accent-green);
-}
-
 .gold-reward {
-  color: var(--gold-reward);
+  color: hsl(var(--gold-reward));
 }
-
-.accent-cyan {
-  color: var(--accent-cyan);
-}
-
-/* Page container consistency */
 .page-container {
   @apply container mx-auto px-4 py-6 sm:py-8 max-w-6xl w-full min-w-0;
 }
 
-/* Responsive tables: horizontal scroll on small screens */
 @media (max-width: 640px) {
   .table-scroll {
     overflow-x: auto;
@@ -62,15 +127,11 @@ body {
     min-width: 400px;
   }
 }
-
-/* Mobile: safe area for notched devices */
 .safe-area-padding {
   padding-left: env(safe-area-inset-left, 0);
   padding-right: env(safe-area-inset-right, 0);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
-
-/* Touch-friendly minimum tap target (44px) */
 @media (pointer: coarse) {
   button:not([class*="size"]),
   a[role="button"],
@@ -79,8 +140,6 @@ body {
     min-width: 44px;
   }
 }
-
-/* Prevent zoom on input focus on iOS when font-size < 16px (mobile only) */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 640px) {
     input, select, textarea {
@@ -93,22 +152,139 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* Muted text uses muted-foreground (so text-muted stays readable) */
+  .text-muted {
+    color: hsl(var(--muted-foreground));
+  }
 }
 
-/* Splash screen loading bar animation */
 @keyframes loading-bar {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(400%);
-    opacity: 0.6;
-  }
+  0% { transform: translateX(-100%); opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { transform: translateX(400%); opacity: 0.6; }
 }
 .animate-loading-bar {
   animation: loading-bar 1.4s ease-in-out infinite;
+}
+
+/* Landing: animated gradient text */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.landing-gradient-text {
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease-in-out infinite;
+}
+
+/* FAQ section: staggered fade-in */
+@keyframes faq-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.faq-item-animate {
+  animation: faq-fade-in 0.5s ease-out forwards;
+}
+
+/* App theme: Tawai-style dark UI */
+.app-theme {
+  --background: 270 50% 4%;
+  --foreground: 0 0% 98%;
+  --card: 270 30% 8%;
+  --card-foreground: 0 0% 98%;
+  --popover: 270 30% 8%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 260 70% 55%;
+  --primary-foreground: 0 0% 98%;
+  --muted: 270 20% 14%;
+  --muted-foreground: 0 0% 70%;
+  --accent: 280 60% 50%;
+  --accent-foreground: 0 0% 98%;
+  --border: 0 0% 100% / 0.1;
+  --input: 270 20% 14%;
+  --ring: 260 70% 55%;
+  --sidebar-background: 270 40% 6%;
+  --sidebar-foreground: 0 0% 90%;
+  --sidebar-primary: 280 70% 55%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 270 30% 12%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 0 0% 100% / 0.08;
+}
+.app-theme {
+  background-color: #0a0614;
+  color: hsl(var(--foreground));
+}
+.app-theme [data-slot="card"],
+.app-theme .rounded-2xl.border.bg-card,
+.app-theme .rounded-lg.border.bg-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+}
+.app-theme [data-slot="table"],
+.app-theme table {
+  --border: 0 0% 100% / 0.1;
+}
+.app-theme .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.7);
+}
+.app-theme [data-slot="card"] .font-semibold,
+.app-theme [data-slot="card"] .font-medium,
+.app-theme .font-headline {
+  color: hsl(var(--foreground));
+}
+.app-theme h1, .app-theme h2, .app-theme h3 {
+  color: white;
+}
+.app-theme .card-title,
+.app-theme [data-slot="card"] [class*="CardTitle"] {
+  color: white;
+}
+.app-theme [data-slot="card"] [class*="CardDescription"] {
+  color: rgba(255, 255, 255, 0.7);
+}
+.app-theme .border-b {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.app-theme a[class*="variant=link"] {
+  color: rgba(255, 255, 255, 0.9);
+}
+.app-theme button[class*="outline"] {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+.app-theme button[class*="outline"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.app-theme .bg-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.app-theme .text-primary {
+  color: rgb(196 181 253);
+}
+.app-theme .badge {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.app-theme .btn-tawai {
+  background: linear-gradient(to right, rgb(139 92 246), rgb(217 70 239), rgb(34 211 238)) !important;
+  color: white !important;
+  border: none !important;
+}
+.app-theme .btn-tawai:hover {
+  opacity: 0.9;
+  box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.4);
+}
+.app-theme .section-title {
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.02em;
+}
+.app-theme .section-title-gradient {
+  background: linear-gradient(to right, rgb(196 181 253), rgb(251 207 232), rgb(165 243 252));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

@@ -254,7 +254,7 @@ export default function PremiumSplash() {
 
               {/* Tagline: below logo tile, never behind it */}
               <motion.p
-                className="mt-6 text-stone-500 tracking-[0.35em] uppercase text-[10px] sm:text-xs font-medium"
+                className="mt-6 text-muted-foreground tracking-[0.35em] uppercase text-[10px] sm:text-xs font-medium"
                 initial={{
                   opacity: 0,
                   letterSpacing: "0.1em",
