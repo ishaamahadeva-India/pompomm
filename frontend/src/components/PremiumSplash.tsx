@@ -155,129 +155,123 @@ export default function PremiumSplash() {
             ))}
           </div>
 
-          {/* Center: glassmorphism plate + logo + shimmer + blur reveal */}
+          {/* Center: logo tile (plate + logo) then tagline below */}
           <motion.div
             className="relative flex flex-col items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Glassmorphism plate behind logo */}
-            <motion.div
-              className="absolute rounded-3xl border border-white/[0.08]"
-              style={{
-                width: 320,
-                height: 320,
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.04) 100%)",
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
-                boxShadow:
-                  "0 0 0 1px rgba(255,255,255,0.05) inset, 0 24px 48px -12px rgba(0,0,0,0.5), 0 0 80px -20px rgba(251, 191, 36, 0.08)",
-              }}
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                rotateX: 0,
-                rotateY: 0,
-              }}
-              transition={{
-                duration: 1,
-                ease: [0.22, 0.61, 0.36, 1],
-              }}
-            />
-
-            {/* Logo container with 3D parallax feel + blur-to-focus */}
-            <motion.div
-              className="relative flex flex-col items-center"
-              style={{ perspective: "1200px" }}
-              initial={{
-                scale: 0.88,
-                opacity: 0,
-                filter: "blur(20px)",
-                rotateX: 8,
-                rotateY: 0,
-              }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                filter: "blur(0px)",
-                rotateX: 0,
-                rotateY: 0,
-              }}
-              transition={{
-                duration: 1.1,
-                ease: [0.22, 0.61, 0.36, 1],
-                filter: { duration: 1, ease: "easeOut" },
-              }}
-            >
-              {/* Logo with gold drop-shadow */}
-              <motion.div
-                className="relative overflow-hidden rounded-2xl"
+            {/* Logo tile: fixed-size box so plate sits only behind logo */}
+            <div className="relative flex flex-col items-center">
+              <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center shrink-0">
+                {/* Glassmorphism plate – only behind logo, same size as this tile */}
+                <motion.div
+                  className="absolute inset-0 rounded-3xl border border-white/[0.08] z-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.04) 100%)",
+                    backdropFilter: "blur(24px)",
+                    WebkitBackdropFilter: "blur(24px)",
+                    boxShadow:
+                      "0 0 0 1px rgba(255,255,255,0.05) inset, 0 24px 48px -12px rgba(0,0,0,0.5), 0 0 80px -20px rgba(251, 191, 36, 0.08)",
+                  }}
+                  initial={{ scale: 0.92, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 1, ease: [0.22, 0.61, 0.36, 1] }}
+                />
+                {/* Logo container with 3D parallax feel + blur-to-focus */}
+                <motion.div
+                className="relative flex flex-col items-center"
+                style={{ perspective: "1200px" }}
+                initial={{
+                  scale: 0.88,
+                  opacity: 0,
+                  filter: "blur(20px)",
+                  rotateX: 8,
+                  rotateY: 0,
+                }}
                 animate={{
-                  scale: [1, 1.02, 1],
+                  scale: 1,
+                  opacity: 1,
+                  filter: "blur(0px)",
+                  rotateX: 0,
+                  rotateY: 0,
                 }}
                 transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                style={{
-                  filter: "drop-shadow(0 0 40px rgba(251, 191, 36, 0.3)) drop-shadow(0 0 80px rgba(251, 191, 36, 0.1))",
+                  duration: 1.1,
+                  ease: [0.22, 0.61, 0.36, 1],
+                  filter: { duration: 1, ease: "easeOut" },
                 }}
               >
-                <Image
-                  src="/pompomm-logo.png"
-                  alt="Pom Pomm"
-                  width={280}
-                  height={280}
-                  priority
-                  className="relative z-0 w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 object-contain select-none pointer-events-none"
-                />
-                {/* Gold shimmer sweep over logo */}
+                {/* Logo with gold drop-shadow */}
                 <motion.div
-                  className="absolute inset-0 z-10 pointer-events-none rounded-2xl overflow-hidden"
-                  style={{ mixBlendMode: "overlay" }}
+                  className="relative overflow-hidden rounded-2xl"
+                  animate={{
+                    scale: [1, 1.02, 1],
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    filter: "drop-shadow(0 0 40px rgba(251, 191, 36, 0.3)) drop-shadow(0 0 80px rgba(251, 191, 36, 0.1))",
+                  }}
                 >
-                  <motion.div
-                    className="absolute inset-y-0 w-[80%]"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.4) 35%, rgba(245,158,11,0.3) 50%, transparent 100%)",
-                      left: "-80%",
-                    }}
-                    initial={{ x: 0 }}
-                    animate={{ x: "200%" }}
-                    transition={{
-                      duration: 2.2,
-                      delay: 0.5,
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
+                  <Image
+                    src="/pompomm-logo.png"
+                    alt="Pom Pomm"
+                    width={280}
+                    height={280}
+                    priority
+                    className="relative z-0 w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 object-contain select-none pointer-events-none"
                   />
+                  {/* Gold shimmer sweep over logo */}
+                  <motion.div
+                    className="absolute inset-0 z-10 pointer-events-none rounded-2xl overflow-hidden"
+                    style={{ mixBlendMode: "overlay" }}
+                  >
+                    <motion.div
+                      className="absolute inset-y-0 w-[80%]"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, transparent 0%, rgba(251,191,36,0.4) 35%, rgba(245,158,11,0.3) 50%, transparent 100%)",
+                        left: "-80%",
+                      }}
+                      initial={{ x: 0 }}
+                      animate={{ x: "200%" }}
+                      transition={{
+                        duration: 2.2,
+                        delay: 0.5,
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
+                    />
+                  </motion.div>
                 </motion.div>
               </motion.div>
-            </motion.div>
+              </div>
 
-            {/* Tagline: fade + letter-spacing (tracking) animation */}
-            <motion.p
-              className="mt-6 text-stone-500 tracking-[0.35em] uppercase text-[10px] sm:text-xs font-medium"
-              initial={{
-                opacity: 0,
-                letterSpacing: "0.1em",
-              }}
-              animate={{
-                opacity: 1,
-                letterSpacing: "0.35em",
-              }}
-              transition={{
-                delay: 0.9,
-                duration: 0.7,
-                ease: [0.22, 0.61, 0.36, 1],
-              }}
-            >
-              Creator Performance Platform
-            </motion.p>
+              {/* Tagline: below logo tile, never behind it */}
+              <motion.p
+                className="mt-6 text-stone-500 tracking-[0.35em] uppercase text-[10px] sm:text-xs font-medium"
+                initial={{
+                  opacity: 0,
+                  letterSpacing: "0.1em",
+                }}
+                animate={{
+                  opacity: 1,
+                  letterSpacing: "0.35em",
+                }}
+                transition={{
+                  delay: 0.9,
+                  duration: 0.7,
+                  ease: [0.22, 0.61, 0.36, 1],
+                }}
+              >
+                Creator Performance Platform
+              </motion.p>
+            </div>
           </motion.div>
         </motion.div>
       )}
