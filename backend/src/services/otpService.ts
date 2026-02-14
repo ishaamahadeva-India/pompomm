@@ -70,10 +70,17 @@ async function sendOtpSms(mobile: string, otp: string): Promise<{ ok: boolean; e
         to: mobile,
       });
       return { ok: true };
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "SMS failed";
-      console.error("Twilio SMS error:", msg);
-      return { ok: false, error: "Failed to send SMS" };
+    } catch (e: unknown) {
+      const err = e as { message?: string; code?: number; moreInfo?: string };
+      const msg = err?.message ?? "SMS failed";
+      console.error("Twilio SMS error:", msg, err?.code, err?.moreInfo);
+      // Surface Twilio error to client (e.g. 21211 invalid To, 21608 trial account)
+      const friendly = msg.includes("21211") || msg.toLowerCase().includes("invalid")
+        ? "Invalid phone number. Use a valid Indian mobile (e.g. +919876543210)."
+        : msg.includes("21608") || msg.toLowerCase().includes("trial")
+        ? "SMS trial: add this number in Twilio console under Phone Numbers > Verified Caller IDs."
+        : msg;
+      return { ok: false, error: friendly };
     }
   }
 

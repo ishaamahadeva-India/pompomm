@@ -40,8 +40,13 @@ authRouter.all("/send-otp", (req, res, next) => {
 });
 authRouter.post("/send-otp", async (req, res, next) => {
   try {
-    const body = sendOtpBody.safeParse(req.body);
-    if (!body.success) throw new AppError(400, "Invalid mobile number");
+    const body = sendOtpBody.safeParse(req.body ?? {});
+    if (!body.success) {
+      const msg = !req.body || typeof req.body !== "object"
+        ? "Send mobile_number in JSON body (e.g. { \"mobile_number\": \"+919876543210\" })"
+        : "Invalid mobile number (use 10 digits or E.164, e.g. +919876543210)";
+      throw new AppError(400, msg);
+    }
     const { mobile_number } = body.data;
     const result = await createAndStoreOtp(mobile_number);
     if (!result.ok) {

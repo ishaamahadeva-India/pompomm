@@ -36,7 +36,8 @@ export default function LoginPage() {
         body: JSON.stringify({ mobile_number: fullMobile }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error ?? "Failed to send OTP");
+      const message = data?.error ?? data?.message ?? "Failed to send OTP";
+      if (!res.ok) throw new Error(message);
       setStep("otp");
       setOtp("");
       setResendCooldown(60);
